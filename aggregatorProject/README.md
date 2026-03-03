@@ -1,5 +1,9 @@
 # someArchetect
 
+Exumple:
+// https://github.com/aaa2ppp/olezhek28-clean-architecture/blob/main/internal/api/user/service.go
+
+
 
 <!-- реализовать агрегацию определенных данных по потоку событий -->
 // В каком виде поток событий ?
