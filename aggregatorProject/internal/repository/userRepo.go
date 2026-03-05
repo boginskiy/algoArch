@@ -10,7 +10,7 @@ import (
 )
 
 type UserRepository interface {
-	Create(ctx context.Context, user *model.User) (int, error)
+	Create(ctx context.Context, user *model.User) (*model.User, error)
 	Get(ctx context.Context, ID int) (*model.User, error)
 }
 
@@ -21,7 +21,7 @@ type UserRepo struct {
 	logger logg.Logger
 }
 
-func NewUserRepo(ctx context.Context, config config.Config, logger logg.Logger) *UserRepo {
+func NewUserRepo(config config.Config, logger logg.Logger) *UserRepo {
 	return &UserRepo{
 		Store:  make(map[int]*model.User, 10),
 		cfg:    config,
@@ -29,11 +29,12 @@ func NewUserRepo(ctx context.Context, config config.Config, logger logg.Logger) 
 	}
 }
 
-func (r *UserRepo) Create(ctx context.Context, user *model.User) (int, error) {
+func (r *UserRepo) Create(ctx context.Context, user *model.User) (*model.User, error) {
 	r.mx.Lock()
 	defer r.mx.Unlock()
+	user.ID = len(r.Store) + 1
 	r.Store[user.ID] = user
-	return user.ID, nil
+	return user, nil
 }
 
 func (r *UserRepo) Get(ctx context.Context, ID int) (*model.User, error) {

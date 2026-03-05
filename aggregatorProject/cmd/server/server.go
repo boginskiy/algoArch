@@ -14,7 +14,7 @@ import (
 
 type Server interface {
 	GracefulShutdown(ctx context.Context)
-	Run() error
+	Run(http.Handler) error
 }
 
 type HTTPServer struct {
@@ -27,14 +27,10 @@ type HTTPServer struct {
 func NewHTTPServer(
 	ctx context.Context,
 	config config.Config,
-	logger logg.Logger,
-	handler http.Handler) *HTTPServer {
+	logger logg.Logger) *HTTPServer {
 
 	srv := &HTTPServer{
-		S: &http.Server{
-			Addr:    config.GetAddress(),
-			Handler: handler,
-		},
+		S:      &http.Server{Addr: config.GetAddress()},
 		cfg:    config,
 		logger: logger,
 		done:   make(chan struct{}),
@@ -44,7 +40,9 @@ func NewHTTPServer(
 	return srv
 }
 
-func (s *HTTPServer) Run() error {
+func (s *HTTPServer) Run(handler http.Handler) error {
+	s.S.Handler = handler
+
 	if err := s.S.ListenAndServe(); err != http.ErrServerClosed {
 		s.logger.RaiseFatal("http server has not started")
 		return err

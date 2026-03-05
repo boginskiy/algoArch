@@ -8,18 +8,14 @@ import (
 	"context"
 )
 
-type UserService interface {
-	Create(ID int) *model.User
-	Get(ID int) *model.User
-}
-
 type UserServi struct {
 	Repo   repository.UserRepository
 	cfg    config.Config
 	logger logg.Logger
+	ctx    context.Context
 }
 
-func NewUserService(
+func NewUserServi(
 	ctx context.Context,
 	config config.Config,
 	logger logg.Logger,
@@ -29,13 +25,14 @@ func NewUserService(
 		Repo:   repo,
 		cfg:    config,
 		logger: logger,
+		ctx:    ctx,
 	}
 }
 
-func (u *UserServi) Create(ID int) *model.User {
-	return nil
+func (u *UserServi) Create(user *model.User) (*model.User, error) {
+	return u.Repo.Create(u.ctx, user)
 }
 
-func (u *UserServi) Get(ID int) *model.User {
-	return nil
+func (u *UserServi) Get(ID int) (*model.User, error) {
+	return nil, nil
 }

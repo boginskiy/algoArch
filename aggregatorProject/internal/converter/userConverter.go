@@ -2,12 +2,10 @@ package converter
 
 import (
 	"aggregatorProject/internal/model"
+	"encoding/json"
+	"io"
 	"net/http"
 )
-
-type UserConverter interface {
-	ConvertDataToUser(http.Request) (*model.User, error)
-}
 
 type UserConvert struct {
 }
@@ -16,6 +14,26 @@ func NewUserConvert() *UserConvert {
 	return &UserConvert{}
 }
 
-func (c *UserConvert) ConvertDataToUser(req http.Request) (*model.User, error) {
-	return &model.User{ID: 1, Name: "Dima"}, nil
+func (c *UserConvert) ConvertBytesToUser(req *http.Request) (*model.User, error) {
+	dataBytes, err := io.ReadAll(req.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	user := &model.User{}
+
+	err = json.Unmarshal(dataBytes, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (c *UserConvert) ConvertUserToBytes(user *model.User) ([]byte, error) {
+	dataBytes, err := json.MarshalIndent(user, "", "  ")
+	if err != nil {
+		return []byte{}, err
+	}
+	return dataBytes, nil
 }
