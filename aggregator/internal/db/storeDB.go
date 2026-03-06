@@ -15,7 +15,7 @@ type StoreDB struct {
 	DB     *sql.DB
 }
 
-func NewDB(ctx context.Context, config config.Config, logger logg.Logger) *StoreDB {
+func NewStoreDB(ctx context.Context, config config.Config, logger logg.Logger) *StoreDB {
 	db, err := sql.Open("postgres", config.GetConnToDB())
 
 	if err != nil {

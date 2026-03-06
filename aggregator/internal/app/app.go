@@ -34,12 +34,15 @@ func NewApp(ctx context.Context) (*App, error) {
 
 func (a *App) Run() error {
 	// DB
-	db := db.NewDB(a.ctx, a.cfg, a.logger)
-	defer db.Close()
+	storeDB := db.NewStoreDB(a.ctx, a.cfg, a.logger)
+	storeRS := db.NewStoreRS(a.ctx)
+
+	defer storeDB.Close()
+	defer storeRS.Close()
 
 	// Repository
 	userRepo := repository.NewUserRepo(a.cfg, a.logger)
-	eventRepo := repository.NewEventRepo(a.ctx, a.cfg, a.logger, db)
+	eventRepo := repository.NewEventRepo(a.ctx, a.cfg, a.logger, storeRS)
 
 	// Converter
 	userConverter := converter.NewUserConvert()

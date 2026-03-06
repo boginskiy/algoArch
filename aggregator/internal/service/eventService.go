@@ -69,7 +69,7 @@ func (s *EventServi) Procc(event *model.Event) {
 	} else {
 		snapShot := s.store.SnapShot()
 		listOfAgr := s.Converter.ConvertMapToAgrTypeValue(snapShot)
-		s.Repo.Update(listOfAgr)
+		s.Repo.Set(listOfAgr)
 		s.limit = new(int64)
 	}
 }
@@ -77,6 +77,3 @@ func (s *EventServi) Procc(event *model.Event) {
 func (s *EventServi) pprint() {
 	fmt.Printf("Result: %v\n\r", s.store)
 }
-
-// Kafka далее
-// Проработка архитектуры Козырев

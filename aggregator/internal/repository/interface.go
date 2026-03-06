@@ -11,5 +11,6 @@ type UserRepository interface {
 }
 
 type EventRepository interface {
-	Update([]*model.AgrTypeValue)
+	Set([]*model.AgrTypeValue)
+	Read(key string) int64
 }

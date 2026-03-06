@@ -1,9 +1,7 @@
 package db
 
-import "database/sql"
-
-type DataBase interface {
+type DataBase[T any] interface {
 	Close()
-	GetDB() *sql.DB
+	GetDB() T
 	Ping() bool
 }
