@@ -3,17 +3,20 @@ package handler
 import (
 	"fmt"
 	"goCnter/internal/cache"
+	"goCnter/internal/model"
 	"net/http"
 	"strconv"
 )
 
 type Handle struct {
 	Cacher cache.Casher
+	TaskCh chan *model.Task
 }
 
 func NewHandle(cacher cache.Casher) *Handle {
 	return &Handle{
 		Cacher: cacher,
+		TaskCh: make(chan *model.Task, 5),
 	}
 }
 
@@ -44,13 +47,8 @@ func (h *Handle) IncrementCnt(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "server error", http.StatusBadRequest)
 	}
 
-	go func() {
-		val, err := h.Cacher.GetCnt(id)
-		if err != nil {
-			fmt.Println(fmt.Errorf("error: %v", err))
-			return
-		}
-	}()
+	//
+	go h.sendToTaskChan(id)
 
 	// Kafka
 	// go func() {
@@ -76,6 +74,16 @@ func (h *Handle) IncrementCnt(w http.ResponseWriter, r *http.Request) {
 	//
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("cnt successfully incremented"))
+}
+
+func (h *Handle) sendToTaskChan(id string) {
+	val, err := h.Cacher.GetCnt(id)
+	if err != nil {
+		fmt.Println(fmt.Errorf("error: %v", err))
+		return
+	}
+
+	h.TaskCh <- &model.Task{ID: id, Count: val}
 }
 
 func (h *Handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {

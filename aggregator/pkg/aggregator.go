@@ -33,9 +33,6 @@ func ReciverEvent(ctx context.Context, eventCh <-chan *Event, store map[string]i
 			} else {
 				return
 			}
-
-		default:
-			continue
 		}
 	}
 }
