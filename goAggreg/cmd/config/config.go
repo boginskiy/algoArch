@@ -1,18 +1,19 @@
 package config
 
-import "context"
-
-type Config interface {
-	GetAddress() string
+type Conf struct {
+	EnvConf EnvConfig
 }
 
-type Cfg struct {
+func NewConf(envConf EnvConfig) *Conf {
+	return &Conf{
+		EnvConf: envConf,
+	}
 }
 
-func NewCfg(_ context.Context) (*Cfg, error) {
-	return &Cfg{}, nil
+func (c *Conf) GetAddress() string {
+	return c.EnvConf.GetAddress()
 }
 
-func (c *Cfg) GetAddress() string {
-	return "localhost:8080"
+func (c *Conf) GetConnToDB() string {
+	return "postgres://username:userpassword@localhost:5432/testdb?sslmode=disable"
 }
