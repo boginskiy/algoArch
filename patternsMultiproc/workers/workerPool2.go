@@ -9,8 +9,8 @@ import (
 const NumWorkers = 3 // Количество ворекров в пуле.
 const MaxTasks = 10  // Сколько задач обработаем.
 
-// Worker
-func worker(id int, taskCh <-chan string, resultCh chan<- string) {
+// worker2
+func worker2(id int, taskCh <-chan string, resultCh chan<- string) {
 	for task := range taskCh {
 		// Выполнение задачи.
 		time.Sleep(1 * time.Second)
@@ -21,7 +21,7 @@ func worker(id int, taskCh <-chan string, resultCh chan<- string) {
 	}
 }
 
-func main() {
+func call() {
 	taskCh := make(chan string, MaxTasks)   // Канал для передачи задач
 	resultCh := make(chan string, MaxTasks) // Канал для возвращения результатов
 	var wg sync.WaitGroup                   // Контроллер завершения всех воркеров
@@ -32,7 +32,7 @@ func main() {
 
 		go func(id int) {
 			defer wg.Done()
-			worker(id, taskCh, resultCh)
+			worker2(id, taskCh, resultCh)
 		}(i)
 	}
 

@@ -6,54 +6,56 @@ import (
 	"time"
 )
 
+// Semaphore структура семафора
 type Semaphore struct {
-	ch chan struct{}
+	semaCh chan struct{}
 }
 
-// New Semaphore.
-func NewSemaphore(limit int) *Semaphore {
+// NewSemaphore создает семафор с буферизованным каналом емкостью maxReq
+func NewSemaphore(maxReq int) *Semaphore {
 	return &Semaphore{
-		ch: make(chan struct{}, limit),
+		semaCh: make(chan struct{}, maxReq),
 	}
 }
 
-// Acquire - захват ресурсаю.
+// когда горутина запускается, отправляем пустую структуру в канал semaCh
 func (s *Semaphore) Acquire() {
-	s.ch <- struct{}{}
+	s.semaCh <- struct{}{}
 }
 
-// Release - освобождение ресурса.
+// когда горутина завершается, из канала semaCh убирается пустая структура
 func (s *Semaphore) Release() {
-	<-s.ch
-}
-
-// Worker имитирует выполнение некоторой длительной операции
-func worker(id int, semaphore *Semaphore) {
-	defer semaphore.Release()
-
-	semaphore.Acquire()
-
-	fmt.Printf("Worker %d started\n", id)
-	time.Sleep(time.Second) // Имитация длительной операции
-	fmt.Printf("Worker %d finished\n", id)
+	<-s.semaCh
 }
 
 func main() {
-	maxWorker := 3 // Лимит параллельного исполнения.
-	numJobs := 10  // Количество заданий.
+	// Чтобы дождаться всех горутин
+	var wg sync.WaitGroup
 
-	semaphore := NewSemaphore(maxWorker)
+	// Создаем семафор емкостью 2: он будет пропускать только 2 горутины
+	// для работы с общим ресурсом.
+	semaphore := NewSemaphore(2)
 
-	var wg sync.WaitGroup // Синхронизируем завершение всех задач
+	// Создаем 10 горутин
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
 
-	wg.Add(numJobs)
+		// Горутина в которую помещаем ее порядковый номер
+		go func(taskID int) {
+			// Отправляем в канал семафора пустую структуру, тем самым мы заняли место
+			semaphore.Acquire()
 
-	for i := 0; i < numJobs; i++ {
-		go func(id int) {
+			//
 			defer wg.Done()
-			worker(id+1, semaphore)
+
+			// Забираем из канала семафора пустую структуру, освобождаем место
+			defer semaphore.Release()
+
+			fmt.Printf("Запущен рабочий %d", taskID)
+
+			// Полезная работа, например обращения к БД
+			time.Sleep(1 * time.Second)
 		}(i)
 	}
-
 	wg.Wait()
 }
