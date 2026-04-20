@@ -1,0 +1,5 @@
+module github.com/boginskiy/someAlgorithms
+
+go 1.25.0
+
+require golang.org/x/sync v0.20.0

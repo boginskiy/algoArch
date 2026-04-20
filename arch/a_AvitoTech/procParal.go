@@ -11,6 +11,7 @@ import (
 
 // Задача:
 // реализовать функцию 'processParallel' и прокинуть 'context'
+// Hard Task
 
 type outVal struct {
 	val int
